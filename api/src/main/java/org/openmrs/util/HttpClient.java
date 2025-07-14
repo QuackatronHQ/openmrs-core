@@ -76,7 +76,18 @@ public class HttpClient {
 
 				// get redirect url from "location" header field
 				String newUrl = connection.getHeaderField("Location");
-				connection = (HttpURLConnection)new URL(newUrl).openConnection();
+				java.net.URL redirectedUrl = new java.net.URL(newUrl);
+
+				// Validate redirect URL against original URL
+				if (!redirectedUrl.getProtocol().equalsIgnoreCase(url.getProtocol())
+						|| !redirectedUrl.getHost().equalsIgnoreCase(url.getHost())
+						|| (redirectedUrl.getPort() != -1
+								? redirectedUrl.getPort() != url.getPort()
+								: url.getPort() != -1)) {
+					throw new java.io.IOException("Redirect to disallowed URL: " + newUrl);
+				}
+
+				connection = (HttpURLConnection) redirectedUrl.openConnection();
 
 				log.info("Redirection to : " + newUrl);
 
@@ -86,7 +97,7 @@ public class HttpClient {
 				connection.setRequestMethod("POST");
 				connection.setRequestProperty("Content-Length", String.valueOf(data.length()));
 				connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-											
+																			
 				wr = new OutputStreamWriter(connection.getOutputStream(), StandardCharsets.UTF_8);
 				wr.write(data.toString());
 				wr.flush();
