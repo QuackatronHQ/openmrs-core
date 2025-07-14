@@ -193,7 +193,7 @@ public class Security {
 		String result;
 
 		try {
-			Cipher cipher = Cipher.getInstance(OpenmrsConstants.ENCRYPTION_CIPHER_CONFIGURATION);
+			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 			cipher.init(Cipher.ENCRYPT_MODE, secret, initVectorSpec);
 			encrypted = cipher.doFinal(text.getBytes(StandardCharsets.UTF_8));
 			result = new String(Base64.getEncoder().encode(encrypted), StandardCharsets.UTF_8);
@@ -235,11 +235,11 @@ public class Security {
 	 */
 	public static String decrypt(String text, byte[] initVector, byte[] secretKey) {
 		IvParameterSpec initVectorSpec = new IvParameterSpec(initVector);
-		SecretKeySpec secret = new SecretKeySpec(secretKey, OpenmrsConstants.ENCRYPTION_KEY_SPEC);
+		SecretKeySpec secret = new SecretKeySpec(secretKey, "AES");
 		String decrypted;
 
 		try {
-			Cipher cipher = Cipher.getInstance(OpenmrsConstants.ENCRYPTION_CIPHER_CONFIGURATION);
+			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 			cipher.init(Cipher.DECRYPT_MODE, secret, initVectorSpec);
 			byte[] original = cipher.doFinal(Base64.getDecoder().decode(text));
 			decrypted = new String(original, StandardCharsets.UTF_8);
